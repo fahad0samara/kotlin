@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.fahad.trendcrafters" />
+                  <option name="mobileSdkAppId" value="1:514568890871:android:97463f7c20a392c611e6f2" />
+                  <option name="projectId" value="trendcrafters-6586b" />
+                  <option name="projectNumber" value="514568890871" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
