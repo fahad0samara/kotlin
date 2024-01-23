@@ -53,10 +53,11 @@ fun AsyncImageProfile(
 
   // Show loading indicator while the image is loading
   if (painter.state is AsyncImagePainter.State.Loading) {
-    CircularProgressIndicator(
-      modifier = loadingModifier,
-      strokeWidth = 2.dp,
-      color = loadingColor
+        CircularProgressIndicator(
+          modifier = loadingModifier,
+          strokeWidth = 2.dp,
+          color = loadingColor,
+
     )
   }
 }

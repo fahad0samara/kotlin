@@ -9,14 +9,18 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -53,17 +58,25 @@ class MainActivity : ComponentActivity() {
         ) {
           // Observe the clothing store state
           val clothingStoreState by viewModel.clothingStoreState.collectAsState()
+
           // State variable to track the selected category
-          val selectedCategory by remember { mutableStateOf("Men's") }
+          var selectedCategory by remember { mutableStateOf("Men's") }
 
-          // Filtered coffee items based on the selected category
-          val filteredclothingStoreState = clothingStoreState.filter { it.name == selectedCategory }
-
-
+          // Filtered clothing items based on the selected category
+          val filteredClothingStoreState = clothingStoreState
+            .filter { it.name == selectedCategory }
+            .flatMap { it.products }
 
           Log.d("MainActivity", "clothingStoreState: $clothingStoreState")
 
-          ClothingStoreScreen(clothingStoreState)
+          // Display the clickable category names and the products
+          Column {
+            CategoryFilterBar(
+              categories = clothingStoreState.map { it.name },
+              onCategorySelected = { category -> selectedCategory = category }
+            )
+            ClothingStoreScreen(filteredClothingStoreState)
+          }
         }
       }
     }
@@ -71,32 +84,35 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CategoryItem(category: CategoryList) {
-
-
-  Column(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(16.dp)
+fun CategoryFilterBar(categories: List<String>, onCategorySelected: (String) -> Unit) {
+  LazyRow(
+    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp)
   ) {
-    Text(
-      text = category.name,
-      style = MaterialTheme.typography.labelLarge,
-      modifier = Modifier.padding(bottom = 8.dp)
-    )
-
-    category.products.forEach { product ->
-      ProductItem(product)
-      Divider(color = Color.LightGray, thickness = 1.dp)
+    items(categories) { category ->
+      ClickableText(
+        text = AnnotatedString(category),
+        onClick = { offset ->
+          onCategorySelected(category)
+        },
+        style = TextStyle(
+          color = Color.White,
+          fontWeight = FontWeight.Bold,
+          fontSize = 16.sp
+        ),
+        modifier = Modifier.padding(end = 8.dp)
+      )
     }
   }
 }
 
+
 @Composable
-fun ClothingStoreScreen(clothingStoreState: List<CategoryList>) {
+fun ClothingStoreScreen(filteredClothingStoreState: List<Product>) {
   LazyColumn {
-    items(clothingStoreState) { category ->
-      CategoryItem(category)
+    items(filteredClothingStoreState) { product ->
+      ProductItem(product)
+      Divider(color = Color.LightGray, thickness = 1.dp)
     }
   }
 }
@@ -148,7 +164,10 @@ fun ProductItem(product: Product) {
         contentScale = ContentScale.Crop,
         loadingModifier = Modifier
           .fillMaxWidth()
-          .height(200.dp),
+            .height(20.dp),
+        loadingSize = 48,
+
+
         loadingColor = MaterialTheme.colorScheme.primary
         )
 
