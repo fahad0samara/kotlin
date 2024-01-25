@@ -41,15 +41,7 @@ class ClothingStoreViewModel : ViewModel() {
           val coffeeDrinkList: List<CategoryList> = Json.decodeFromString(responseBody)
           Log.d("CoffeeViewModel", "Coffee list: $coffeeDrinkList")
             _clothingStoreState.value = coffeeDrinkList
-
-
-
-
-
-
-
-
-        } else {
+ } else {
           // Handle non-successful response (e.g., show an error message)
           Log.e("ViewModele", "Error: ${response.status.value} - ${response.status.description}")
         }

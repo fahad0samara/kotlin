@@ -107,7 +107,8 @@ dependencies {
 
 
 
-
+  implementation ("androidx.compose.foundation:foundation:1.4.3")
+  implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1")
 
 
 

@@ -9,20 +9,34 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,20 +47,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.fahad.trendcrafters.ui.theme.TrendCraftersTheme
 
 class MainActivity : ComponentActivity() {
   private val viewModel: ClothingStoreViewModel by viewModels()
+
+
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -58,6 +79,9 @@ class MainActivity : ComponentActivity() {
         ) {
           // Observe the clothing store state
           val clothingStoreState by viewModel.clothingStoreState.collectAsState()
+          val navController = rememberNavController()
+
+
 
           // State variable to track the selected category
           var selectedCategory by remember { mutableStateOf("Men's") }
@@ -67,16 +91,21 @@ class MainActivity : ComponentActivity() {
             .filter { it.name == selectedCategory }
             .flatMap { it.products }
 
-          Log.d("MainActivity", "clothingStoreState: $clothingStoreState")
+
 
           // Display the clickable category names and the products
           Column {
-            CategoryFilterBar(
+
+
+         CategoryFilterBar(
               categories = clothingStoreState.map { it.name },
-              onCategorySelected = { category -> selectedCategory = category }
+                onCategorySelected = { category ->
+                    selectedCategory = category
+                }
             )
-            ClothingStoreScreen(filteredClothingStoreState)
-          }
+           ClothingStoreScreen(filteredClothingStoreState)
+
+         }
         }
       }
     }
@@ -86,7 +115,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CategoryFilterBar(categories: List<String>, onCategorySelected: (String) -> Unit) {
   LazyRow(
-    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+    contentPadding = PaddingValues(horizontal = 6 .dp, vertical = 8.dp),
     horizontalArrangement = Arrangement.spacedBy(8.dp)
   ) {
     items(categories) { category ->
@@ -109,103 +138,125 @@ fun CategoryFilterBar(categories: List<String>, onCategorySelected: (String) -> 
 
 @Composable
 fun ClothingStoreScreen(filteredClothingStoreState: List<Product>) {
-  LazyColumn {
+  LazyVerticalGrid(
+    GridCells.Fixed(2),
+    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+    ) {
     items(filteredClothingStoreState) { product ->
-      ProductItem(product)
-      Divider(color = Color.LightGray, thickness = 1.dp)
+      GridOfImages(product)
+
+
     }
   }
 }
 
 
+
+
 @Composable
-fun ProductItem(product: Product) {
-  Card(
+fun GridOfImages(product: Product) {
+  Row(
     modifier = Modifier
       .fillMaxWidth()
       .padding(8.dp)
-      .clip(MaterialTheme.shapes.medium)
-      .shadow(4.dp),
+      .clickable { /* Handle click */ }
   ) {
     Column(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(16.dp)
     ) {
-      // Display product details
-      Text(text = product.name, style = MaterialTheme.typography.bodyMedium)
-      Spacer(modifier = Modifier.height(8.dp))
-      Text(text = "Price: $${product.price}", style = MaterialTheme.typography.labelLarge)
-      Spacer(modifier = Modifier.height(8.dp))
-      Text(text = "Rating: ${product.rating ?: "N/A"}", style = MaterialTheme.typography.labelLarge)
-      Spacer(modifier = Modifier.height(8.dp))
-      Text(text = "In Stock: ${product.inStock}", style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Description: ${product.description}", style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Shipping Info: ${product.shippingInfo}", style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Sizes: ${product.sizes}", style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Tags: ${product.tags}", style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Discount: ${product.discount}", style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Discount Percentage: ${product.discountPercentage}", style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-
-      AsyncImageProfile(
-        photoUrl = product.imageUrl,
+      Box(
         modifier = Modifier
-          .fillMaxWidth()
-          .height(200.dp),
-        contentScale = ContentScale.Crop,
-        loadingModifier = Modifier
-          .fillMaxWidth()
-            .height(20.dp),
-        loadingSize = 48,
-
-
-        loadingColor = MaterialTheme.colorScheme.primary
+          .size(150.dp, 150.dp)
+          .background(
+            color = MaterialTheme.colorScheme.background, // Adjust background color
+            shape = RoundedCornerShape(16.dp)
+          )
+          .clip(shape = RoundedCornerShape(16.dp))
+          .clickable { /* Handle click */ }
+      ) {
+        AsyncImageProfile(
+          modifier = Modifier
+            .fillMaxSize()
+            .aspectRatio(1f)
+            .align(Alignment.BottomCenter),
+          photoUrl = product.imageUrl,
+          contentScale = ContentScale.Crop,
         )
 
+        Image(
+          painter = painterResource(id = R.drawable.ic_heart),
+          contentDescription = null,
+          modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(end = 8.dp, top = 8.dp)
+            .clickable { /* Handle click */ }
+        )
+      }
 
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Id: ${product.id}", style = MaterialTheme.typography.bodyMedium)
-    Spacer(modifier = Modifier.height(8.dp))
-    Text(text = "Name: ${product.name}", style = MaterialTheme.typography.bodyMedium)
-    Spacer(modifier = Modifier.height(8.dp))
-      ShippingInfoItem(shippingInfo = product.shippingInfo)
-        Spacer(modifier = Modifier.height(8.dp))
+      Box(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(8.dp)
+      ) {
+        Column {
+          Text(
+            text = product.name,
+            style = MaterialTheme.typography.labelLarge,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold
+
+          )
 
 
 
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .background(
+                color = MaterialTheme.colorScheme.surface, // Adjust background color
+                shape = RoundedCornerShape(16.dp)
+              )
+              .padding(8.dp)
+              .clip(shape = RoundedCornerShape(16.dp)),
+            horizontalArrangement = Arrangement.SpaceBetween
+          ) {
+            Row(
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                tint = Color.Yellow,
+                modifier = Modifier.size(18.dp)
+              )
 
+              Spacer(modifier = Modifier.size(4.dp))
+
+              Text(
+                text = product.rating.toString(),
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+              )
+            }
+
+            Spacer(modifier = Modifier.size(8.dp))
+
+            Text(
+              text = "$${product.price}",
+              style = MaterialTheme.typography.titleMedium
+            )
+          }
+        }
+      }
     }
   }
 }
-@Composable
-fun ShippingInfoItem(shippingInfo: ShippingInfo) {
-  Column(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(16.dp)
-  ) {
-    Text(
-      text = "Estimated Delivery Days: ${shippingInfo.estimatedDeliveryDays}",
-      style = MaterialTheme.typography.bodyMedium
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-    Text(
-      text = "Free Shipping Threshold: $${shippingInfo.freeShippingThreshold}",
-      style = MaterialTheme.typography.bodyMedium
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-    Text(
-      text = "Shipping Cost: $${shippingInfo.shippingCost}",
-      style = MaterialTheme.typography.bodyMedium
-    )
-  }
-}
+
+
+
+
+
